@@ -11,7 +11,7 @@ private:
 	void build_sparse_table(const TT &v) { // TT = vector<T> or deque<T>
 		int idx = 0; // for 0 based array
 		for (const T &val : v) {
-			table[0][idx] = val;
+			table[0][idx++] = val;
 		}
 
 		for (int row = 1; row < (int) table.size(); ++row) {
