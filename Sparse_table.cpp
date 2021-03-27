@@ -1,12 +1,21 @@
 template<typename T>
-T combine(const T &a, const T &b) { // combine here = min(a, b)
-	return a < b ? a : b;
+T combine(const T &a, const T &b) { // combine here = max(a, b)
+	return a > b ? a : b;
 }
 
 template<typename T, T (*combine)(const T&, const T&)>
 class Sparse_table {
 private:
 	vector<vector<T> > table;
+public:
+	Sparse_table() {
+	}
+	template<typename TT>
+	Sparse_table(const TT &v) { // TT = vector<T> or deque<T>
+		table.assign(__lg(v.size()) + 1, vector<T>(v.size()));
+		if (v.size()) build_sparse_table(v);
+	}
+
 	template<typename TT>
 	void build_sparse_table(const TT &v) { // TT = vector<T> or deque<T>
 		int idx = 0; // for 0 based array
@@ -22,13 +31,6 @@ private:
 						table[row - 1][col + (c_range >> 1)]);
 			}
 		}
-	}
-
-public:
-	template<typename TT>
-	Sparse_table(const TT &v) { // TT = vector<T> or deque<T>
-		table.assign(__lg(v.size()) + 1, vector<T>(v.size()));
-		if (v.size()) build_sparse_table(v);
 	}
 
 	T query_o1(int l, int r) const { // overlap friendly
