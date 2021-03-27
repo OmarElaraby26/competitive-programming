@@ -12,12 +12,13 @@ public:
 	}
 	template<typename TT>
 	Sparse_table(const TT &v) { // TT = vector<T> or deque<T>
-		table.assign(__lg(v.size()) + 1, vector<T>(v.size()));
-		if (v.size()) build_sparse_table(v);
+		build_sparse_table(v);
 	}
 
 	template<typename TT>
 	void build_sparse_table(const TT &v) { // TT = vector<T> or deque<T>
+		table.assign(__lg(v.size()) + 1, vector<T>(v.size()));
+
 		int idx = 0; // for 0 based array
 		for (const T &val : v) {
 			table[0][idx++] = val;
