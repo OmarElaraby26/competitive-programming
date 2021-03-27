@@ -17,7 +17,9 @@ public:
 
 	template<typename TT>
 	void build_sparse_table(const TT &v) { // TT = vector<T> or deque<T>
-		table.assign(__lg(v.size()) + 1, vector<T>(v.size()));
+		const int n = v.size();
+
+		table.assign(__lg(n) + 1, vector<T>(n));
 
 		int idx = 0; // for 0 based array
 		for (const T &val : v) {
