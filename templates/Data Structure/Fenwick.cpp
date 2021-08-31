@@ -34,9 +34,7 @@ public:
         }
     }
 
-    inline long long size() const {
-        return n;
-    }
+    inline long long size() const { return n; }
 
     T prefix(int idx) const {
         // ret = 0 if +,-,^
@@ -60,7 +58,7 @@ public:
     // then updateBy(5, 3) will increase value in position 5 by 3
     // if operation is ^
     // then [idx] = [idx] ^ delta
-    void updateBy(int idx, const T &delta) {
+    void updateBy(int idx, const T delta) {
         while (idx < n) {
             bit[idx] = combine(bit[idx], delta);
             idx += idx & -idx;
