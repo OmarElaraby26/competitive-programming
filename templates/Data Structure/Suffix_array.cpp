@@ -70,6 +70,7 @@ public:
     }
 };
 
+// the following template is from 'Neal' with few changes and additional functions.
 template<typename T_string = std::string>
 class Suffix_array {
 public:
