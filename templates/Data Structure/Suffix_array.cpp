@@ -1,62 +1,55 @@
-template<typename T>
-// sparse_table min
-T sp_min(const T &a, const T &b) { // combine here = max(a, b)
-    return a < b ? a : b;
-}
-
-template<typename T>
-// sparse_table max
-T sp_max(const T &a, const T &b) { // combine here = max(a, b)
-    return a > b ? a : b;
-}
-
-template<typename T>
-// sparse_table gcd
-T sp_gcd(const T &a, const T &b) { // combine here = max(a, b)
-    return __gcd(a, b);
-}
-
-template<typename T, T (*combine)(const T &, const T &)>
+template<typename T, const int mode = 0>
 class Sparse_table {
 private:
-    vector<vector<T> > table;
+    int n = 0;
+    vector<vector<T>> table;
+
+    static T combine(const T &a, const T &b) {
+        if (mode == 0) return min(a, b);
+        else if (mode == 1) return max(a, b);
+        else if (mode == 2) return __gcd(a, b);
+        else if (mode == 3) return a + b;
+        else if (mode == 4) return a * b;
+        else
+            assert(mode <= 4);
+    }
+
 public:
-    Sparse_table() {
+    Sparse_table(const vector<T> &values = {}) {
+        if (!values.empty()) build(values);
     }
 
-    template<typename TT>
-    Sparse_table(const TT &v) { // TT = vector<T> or deque<T>
-        build(v);
-    }
+    void build(const vector<T> &values) {
+        n = int(values.size());
+        int levels = __lg(n) + 1;
+        if (n == 0) levels = 0;
+        table.resize(levels);
 
-    template<typename TT>
-    void build(const TT &v) { // TT = vector<T> or deque<T>
-        const int n = v.size();
-        table.assign(__lg(n) + 1, vector<T>(n));
-
-        int idx = 0; // for 0 based array
-        for (const T &val: v) {
-            table[0][idx++] = val;
+        for (int k = 0; k < levels; k++) {
+            table[k].resize(n - (1 << k) + 1);
         }
 
-        for (int row = 1; row < (int) table.size(); ++row) {
-            const int c_range = (1 << row);
-            for (int col = 0; col + c_range - 1 < (int) table[row].size();
-                 ++col) {
-                table[row][col] = combine(table[row - 1][col],
-                                          table[row - 1][col + (c_range >> 1)]);
+        if (n > 0) table[0] = values;
+
+        for (int k = 1; k < levels; k++) {
+            for (int i = 0; i <= n - (1 << k); i++) {
+                table[k][i] = combine(table[k - 1][i],
+                                      table[k - 1][i + (1 << (k - 1))]);
             }
         }
     }
 
-    T query_o1(int l, int r) const { // overlap friendly
-        if (l > r) swap(l, r); // or to use assert ???
-        int msb = __lg(r - l + 1), s_range = (1 << msb);
-        return combine(table[msb][l], table[msb][r - s_range + 1]);
+    // [a, b) = a, a+1, ..., b-1
+    T query_o1(int a, int b) const { // [a, b)
+        assert(0 <= a && a < b && b <= n);
+        int level = __lg(b - a);
+        return combine(table[level][a], table[level][b - (1 << level)]);
     }
 
+    // [a, b) = a, a+1, ..., b-1
     T query_ologn(int l, int r) const { // NON overlap friendly functions as +, * ..
-        if (l > r) swap(l, r); // or to use assert ???
+        assert(0 <= l && l < r && l <= n);
+        --r;
         T ans;
         bool started = 0; // not to add initall value to ans
         while (l <= r) {
@@ -70,7 +63,7 @@ public:
     }
 };
 
-// the following template is from 'Neal' with few changes and additional functions.
+
 template<typename T_string = std::string>
 class Suffix_array {
 public:
@@ -80,11 +73,11 @@ public:
     vector<int> rank;
     vector<int> lcp;
     // rmq is only for using compare(), get_lcp()
-    Sparse_table<int, sp_min> rmq;
+    Sparse_table<int, 0> rmq;
 
     Suffix_array() : n(0), str("") {}
 
-    Suffix_array(const T_string &_str, bool build_rmq = false)
+    Suffix_array(const T_string &_str, const bool build_rmq = false)
             : str(_str), n(_str.size()) {
         build(_str, build_rmq);
     }
@@ -144,7 +137,6 @@ private:
         for (int i = 1; i < n; i++) {
             rank[suffix[i]] = str[suffix[i]] == str[suffix[i - 1]] ?
                               rank[suffix[i - 1]] : i;
-
         }
 
         vector<int> next_index(n);
@@ -272,7 +264,7 @@ private:
     int get_lcp_from_ranks(int a, int b) const {
         if (a == b) return n - suffix[a];
         if (a > b) swap(a, b);
-        return rmq.query_o1(a + 1, b + 1);
+        return rmq.query_o1(a + 1, b + 1);// query from a+1 to b
     }
 
     // special compare function for
