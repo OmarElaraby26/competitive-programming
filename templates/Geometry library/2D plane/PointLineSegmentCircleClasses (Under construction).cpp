@@ -429,6 +429,55 @@ bool isConvex(const vector<Point> &poly) { // O(pts.size())
     return !(hasPos && hasNeg);
 }
 
+
+void convex_hull(vector<Point> &a, const bool include_collinear = false) {
+    // delete duplicated points
+    sort(a.begin(), a.end());
+    a.resize(unique(a.begin(), a.end()) - a.begin());
+
+    const Point p0 = *min_element(a.begin(), a.end(), [](Point a, Point b) {
+        if (abs(a.y - b.y) < EPS) {
+            if (abs(a.x - b.x) < EPS) return false;
+            return a.x < b.x;
+        }
+        return a.y < b.y;
+    });
+
+    sort(a.begin(), a.end(), [p0](const Point &a, const Point &b) {
+        const _T_ o = orient(p0, a, b);
+        if (abs(o) < EPS) { // == 0
+            const _T_ val = (p0.x - a.x) * (p0.x - a.x) + (p0.y - a.y) * (p0.y - a.y)
+                            - (p0.x - b.x) * (p0.x - b.x) - (p0.y - b.y) * (p0.y - b.y);
+            return (abs(val) > EPS) && val < 0;
+        }
+        return o < 0;
+    });
+
+    const auto collinear = [](Point a, Point b, Point c) -> bool {
+        return abs(orient(a, b, c)) < EPS;
+    };
+
+    if (include_collinear) {
+        int i = int(a.size()) - 1;
+        while (i >= 0 && collinear(p0, a[i], a.back())) --i;
+        reverse(a.begin() + i + 1, a.end());
+    }
+
+    const auto cw = [include_collinear](Point a, Point b, Point c) -> bool {
+        const _T_ o = orient(a, b, c);
+        return (abs(o) > EPS && o < 0) || (include_collinear && abs(o) < EPS);
+    };
+
+    vector<Point> st;
+    for (int i = 0; i < (int) a.size(); ++i) {
+        while (st.size() > 1 && !cw(st[st.size() - 2], st.back(), a[i]))
+            st.pop_back();
+        st.push_back(a[i]);
+    }
+
+    a = st;
+}
+
 // todo: check if point inside the polygon O(log(n))
 // todo: sort points of polygon clockwise
 
