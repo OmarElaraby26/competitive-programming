@@ -53,9 +53,7 @@ public:
     // [a, b) = a, a+1, ..., b-1
     // return value not index
     T query_o1(int a, int b) const {
-        assert(0 <= a && a < b && b <= n);
-        int level = __lg(b - a);
-        return data[combine(table[level][a], table[level][b - (1 << level)])];
+        return data[ind_query_o1(a, b)];
     }
 
     // [a, b) = a, a+1, ..., b-1
