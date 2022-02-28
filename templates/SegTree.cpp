@@ -51,6 +51,7 @@ public:
         return pointUpdate(idx, newVal, 0, 0, n - 1);
     }
 
+    // range from l to r inclusive [l:r]
     T rangeQuery(int l, int r) {
         return rangeQuery(l, r, 0, 0, n - 1);
     }
@@ -110,6 +111,7 @@ private:
     }
 
 
+    // range from l to r inclusive [l:r]
     T rangeQuery(const int l, const int r, const int nodeIdx, const int st, const int ed) {
         if (ed < l) return identity();
         if (st > r) return identity();
