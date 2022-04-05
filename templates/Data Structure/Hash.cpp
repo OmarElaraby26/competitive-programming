@@ -9,10 +9,32 @@ private:
         for (int j = 0; j < sz; ++j) {
             for (int i = 0; i < s.size(); ++i) {
                 if (i) pow[j][i] = (1LL * pow[j][i - 1] * p[j]) % m[j];
-                // todo: update s[i] - 'a'
-                pref[j][i + 1] = (pref[j][i] + (s[i] - 'a' + 1LL) * pow[j][i]) % m[j];
+                // todo: update `s[i]` to (s[i] - 'a' + 1LL) ?
+                pref[j][i + 1] = (pref[j][i] + s[i] * 1LL * pow[j][i]) % m[j];
             }
         }
+    }
+
+public:
+    // todo: update sz to 1 or 2
+    Hash(const string &s) : sz(2) {
+        init(s);
+    }
+
+    void init(const string &s) {
+        p.resize(2), m.resize(2);
+        // todo: update 'p[i]` if `s` contains non-lowercase chars
+        // 211, 223
+        p[0] = 31, p[1] = 29, m[0] = 1e9 + 7, m[1] = 1e9 + 9;
+
+        n = s.size();
+
+        pref.resize(sz), pow.resize(sz);
+        for (int j = 0; j < sz; ++j) {
+            pref[j].assign(s.size() + 1, 0);
+            pow[j].assign(s.size(), 1);
+        }
+        build(s);
     }
 
     pair<int, int> get_hash(const int l, const int r) const {
@@ -26,27 +48,6 @@ private:
             else b = x;
         }
         return {a, b};
-    }
-
-public:
-    // todo: update sz to 1 or 2
-    Hash(const string &s) : sz(1) {
-        init(s);
-    }
-
-    void init(const string &s) {
-        // todo: update 'p[i]` if `s` contains non-lowercase chars
-        p.resize(2), m.resize(2);
-        p[0] = 31, p[1] = 29, m[0] = 1e9 + 7, m[1] = 1e9 + 9;
-
-        n = s.size();
-
-        pref.resize(sz), pow.resize(sz);
-        for (int j = 0; j < sz; ++j) {
-            pref[j].assign(s.size() + 1, 0);
-            pow[j].assign(s.size(), 1);
-        }
-        build(s);
     }
 
     bool is_equal(const int a, const int b, const int x, const int y) const {
