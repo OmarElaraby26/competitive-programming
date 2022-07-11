@@ -109,7 +109,7 @@ public:
         return operator*(ratio); // return new Vector v'
     }
 
-    // rotate point by theta degree clockwise  around point c
+    // rotate point by theta degree counter-clockwise around point c
     Point rotate(const Point &c, const double deg) const {
         double rad = deg / 180.0 * acos(-1);
 
